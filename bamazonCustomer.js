@@ -82,7 +82,7 @@ function purchase() {
             }
             else {
                 var totalCost = answer.quantity * res[0].price;
-                console.log("\nThanks for shopping with us! Your order of "+answer.quantity+" "+res[0].product_name+" has been placed. \n" + "Your Total of this purchase is " + totalCost);
+                console.log("\nThanks for shopping with us! Your order of "+answer.quantity+" "+res[0].product_name+" has been placed. \n" + "Your Total of this purchase is " + "$"+totalCost);
                 //update new stock quantity
                 var newQuantity = res[0].stock_quantity - answer.quantity;
                 connection.query("update products set ? where ? ", 

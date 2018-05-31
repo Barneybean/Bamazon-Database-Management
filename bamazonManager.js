@@ -18,7 +18,7 @@ connection.connect(function(err) {
     console.log("Database " + connection.config.database + " connected");
     managerOption();
 });
-
+//to promt 4 options for manager
 function managerOption() {
    
     inquirer.prompt([
@@ -36,15 +36,15 @@ function managerOption() {
             case "View Low Inventory":
                 return viewLowInv();
             
-            // case "Add to Inventory":
-            //     return addInv();
+            case "Add to Inventory":
+                return addInv();
 
-            // case "Add New Product":
-            //     return addNew();
+            case "Add New Product":
+                return addNew();
         };
     });
 };
-
+// to display table
 function getData(query) {
     connection.query(query, function (err, res) {
         if (err) throw err;
@@ -78,4 +78,72 @@ function viewInv(query) {
 function viewLowInv() {
     var query = "select * from products where stock_quantity<5";
     getData(query);
+};
+
+function addInv() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "id",
+            message: "Enter item_id of the product you wish to stock up: "
+        },{
+            type: "input",
+            name: "quantity",
+            message: "Enter quantity of the product you wish to stock up (integer only): "
+        }
+    ]).then(function (product) {
+        //define query to update inventory
+        var newQuant;
+
+        //get quantity by id and add new stock quantity
+        connection.query("select stock_quantity from products where item_id = ?", [product.id], function(err, res) {
+            if(err) throw err;
+            newQuant = parseInt(res[0].stock_quantity) + parseInt(product.quantity);
+
+            connection.query("update products set ? where ?", [{stock_quantity: newQuant},{item_id: product.id}], function (err, data) {
+                if(err) throw err;
+                console.log(data.affectedRows + " product updated..");
+                managerOption();
+            });
+
+        });
+    })
 }
+
+function addNew() {
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "product_name",
+            message: "Enter New Product Name: ",
+        },{
+            type: "input",
+            name: "department_name",
+            message: "What department does it belong to? ",
+            
+        },{
+            type: "input",
+            name: "price",
+            message: "Enter Price of the product, two decimals: ",
+            
+        },{
+            type: "input",
+            name: "quantity",
+            message: "Enter stock quantity: ",
+            
+        }
+    ]).then(function(res) {
+        connection.query("insert into products set?", 
+        {
+            product_name: res.product_name,
+            department_name: res.department_name,
+            price: res.price,
+            stock_quantity: res.quantity
+        },
+        function (err, data) {
+            if(err) throw err;
+            console.log(data.affectedRows + " product added..");
+            managerOption();
+        });
+    });
+};

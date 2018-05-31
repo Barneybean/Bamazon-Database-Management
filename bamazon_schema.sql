@@ -1,5 +1,4 @@
 use bamazon_db;
-
 create table products(
     item_id int(20) not null auto_increment,
     product_name varchar(45) not null,
